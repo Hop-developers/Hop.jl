@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           repository: 'Hop-developers/HopTestData'
-          path: 'Hop.jl/test'
+          path: 'test'
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
