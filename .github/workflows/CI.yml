@@ -31,7 +31,7 @@ jobs:
           path: 'test/data'
       - name: bar
         run: |
-          ls $GITHUB_WORKSPACE/test
+          ls $GITHUB_WORKSPACE/test/data
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
