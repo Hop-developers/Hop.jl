@@ -6,7 +6,8 @@ on:
     tags: ["*"]
   pull_request:
 
-docs:
+jobs:
+  docs:
     name: Documentation
     runs-on: ubuntu-latest
     steps:
