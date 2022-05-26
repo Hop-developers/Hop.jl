@@ -1,7 +1,7 @@
 name = "Hop"
 uuid = "27194a60-cc7c-11e8-1833-27a509d26cbc"
-authors = ["Chong Wang <ch-wang@outlook.com>"]
-version = "0.1.0"
+authors = ["Chong Wang <atbug@outlook.com>"]
+version = "0.8.0"
 
 [deps]
 Distributed = "8ba89e20-285c-5b6f-9357-94700520ee1b"
