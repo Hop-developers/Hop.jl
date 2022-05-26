@@ -52,7 +52,7 @@ include("mesh.jl")
 for (datafile, taskvec) in tasks
     @info "  Loading $datafile ..."
     method = models[datafile]
-    nm = getfield(Hop.Interface, Symbol(:createmodel, method))("test/data/" * datafile)
+    nm = getfield(Hop.Interface, Symbol(:createmodel, method))("test/HopTestData/" * datafile)
     for (sourcefilename, testfunc) in taskvec
         @info "    Running test in $sourcefilename ..."
         testfunc(nm)

@@ -24,6 +24,9 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        with:
+          path: 'Hop.jl/test'
       - uses: julia-actions/setup-julia@v1
         with:
           version: ${{ matrix.version }}
