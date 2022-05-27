@@ -560,4 +560,100 @@ function createmodelwannier(filepath::String)
 end
 
 
+"""
+Create TBModel from Wannier90 interface.
+
+`tbfile` should be `seedname_tb.dat` and `wsvecfile` should be `seedname_wsvec.dat`.
+
+This interface accounts for the distance between orbitals, the effect of which is the
+same as `use_ws_distance = true` in the Wannier90 input file.
+"""
+function createmodelwannier(tbfile::String, wsvecfile::String)
+    # read wsvec file
+    wsvecs = Dict{Vector{Int64},Vector{Vector{Int64}}}()
+    open(wsvecfile) do f
+        readline(f) # this line is comment
+        while !eof(f)
+            foo = readline(f)
+            foo == "" && break
+            key = map(x -> parse(Int64, x), split(foo))
+            ndegen = parse(Int64, readline(f))
+            vecs = [map(x -> parse(Int64, x), split(readline(f))) for _ in 1:ndegen]
+            wsvecs[key] = vecs
+        end
+    end
+    wsndegen = Dict{Vector{Int64},Int64}()
+    for (k, v) in wsvecs
+        wsndegen[k] = length(v)
+    end
+
+
+    lat = zeros(3, 3)
+    norbits = 0
+    hoppings = Dict{Vector{Int64},Matrix{ComplexF64}}()
+    positions = Dict{Vector{Int64},Vector{Matrix{ComplexF64}}}()
+
+    open(tbfile) do f
+        readline(f) # this line is comment
+        for i in 1:3
+            lat[:, i] = map(s->parse(Float64, s), split(readline(f)))
+        end
+        norbits = parse(Int64, readline(f))
+        nrpts = parse(Int64, readline(f))
+        rndegen = zeros(0)
+        while true
+            line = readline(f)
+            line == "" && break
+            rndegen = [rndegen; map(s->parse(Int64, s), split(line))]
+        end
+        @assert length(rndegen) == nrpts
+
+        for irpt in 1:nrpts
+            R = map(s -> parse(Int64, s), split(readline(f)))
+            for m in 1:norbits, n in 1:norbits
+                tmp = map(s -> parse(Float64, s), split(readline(f))[(end - 1):end])
+                wskey = [R..., n, m]
+                for R′ in wsvecs[wskey]
+                    hopping = get!(hoppings, R + R′, zeros(ComplexF64, norbits, norbits))
+                    hopping[n, m] += (tmp[1] + im * tmp[2]) / rndegen[irpt] / wsndegen[wskey]
+                end
+            end
+            @assert readline(f) == ""
+        end
+
+        for irpt in 1:nrpts
+            R = map(s -> parse(Int64, s), split(readline(f)))
+            for m in 1:norbits, n in 1:norbits
+                tmp = map(s -> parse(Float64, s), split(readline(f))[(end - 5):end])
+                wskey = [R..., n, m]
+                for R′ in wsvecs[wskey]
+                    position = get!(positions, R + R′, [zeros(ComplexF64, norbits, norbits) for _ in 1:3])
+                    position[1][n, m] += (tmp[1] + im * tmp[2]) / rndegen[irpt] / wsndegen[wskey]
+                    position[2][n, m] += (tmp[3] + im * tmp[4]) / rndegen[irpt] / wsndegen[wskey]
+                    position[3][n, m] += (tmp[5] + im * tmp[6]) / rndegen[irpt] / wsndegen[wskey]
+                end
+            end
+            @assert readline(f) == ""
+        end
+    end
+
+    tm = TBModel{ComplexF64}(norbits, lat, isorthogonal=true)
+
+    for (R, hopping) in hoppings
+        for m in 1:norbits, n in 1:norbits
+            sethopping!(tm, R, n, m, hopping[n, m])
+        end
+    end
+
+    for (R, position) in positions
+        for m in 1:norbits, n in 1:norbits
+            for α in 1:3
+                setposition!(tm, R, n, m, α, position[α][n, m])
+            end
+        end
+    end
+
+    return tm
+end
+
 end
