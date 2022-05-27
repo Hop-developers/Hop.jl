@@ -618,7 +618,7 @@ function setposition!(
     α::Int64,
     pos::Number;
     position_tolerance::Real=1.0e-4
-) where T
+) where T <: Number
     ((n in 1:tm.norbits) && (m in 1:tm.norbits)) || error("n or m not in range 1-norbits.")
     length(R) == 3 || error("R should be a 3-element vector")
     (α in 1:3) || error("α not in 1-3.")
@@ -630,7 +630,7 @@ function setposition!(
         end
     end
 
-# populate the matrix
+    # populate the matrix
     if !(R in keys(tm.positions))
         tm.positions[R] = [zeros(T, tm.norbits, tm.norbits) for i in 1:3]
         tm.positions[-R] = [zeros(T, tm.norbits, tm.norbits) for i in 1:3]
@@ -645,7 +645,13 @@ function setposition!(
     end
 end
 
-function setposition!(tm::TBModel{T}, R::AbstractVector{<:Integer}, n::Int64, m::Int64, pos::Vector{<:Number}) where T
+function setposition!(
+    tm::TBModel{T},
+    R::AbstractVector{<:Integer},
+    n::Int64,
+    m::Int64, 
+    pos::Vector{<:Number}
+) where T <: Number
     ((n in 1:tm.norbits) && (m in 1:tm.norbits)) || error("n or m not in range 1-norbits.")
     length(R) == 3 || error("R should be a 3-element vector")
     length(pos) == 3 || error("pos should be a 3-element vector.")
@@ -654,6 +660,7 @@ function setposition!(tm::TBModel{T}, R::AbstractVector{<:Integer}, n::Int64, m:
         setposition!(tm, R, n, m, α, pos[α])
     end
 end
+
 
 @doc raw"""
 ```julia
