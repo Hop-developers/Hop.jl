@@ -571,6 +571,7 @@ same as `use_ws_distance = true` in the Wannier90 input file.
 function createmodelwannier(tbfile::String, wsvecfile::String)
     # read wsvec file
     wsvecs = Dict{Vector{Int64},Vector{Vector{Int64}}}()
+    wsndegen = Dict{Vector{Int64},Int64}()
     open(wsvecfile) do f
         readline(f) # this line is comment
         while !eof(f)
@@ -580,13 +581,9 @@ function createmodelwannier(tbfile::String, wsvecfile::String)
             ndegen = parse(Int64, readline(f))
             vecs = [map(x -> parse(Int64, x), split(readline(f))) for _ in 1:ndegen]
             wsvecs[key] = vecs
+            wsndegen[key] = ndegen
         end
     end
-    wsndegen = Dict{Vector{Int64},Int64}()
-    for (k, v) in wsvecs
-        wsndegen[k] = length(v)
-    end
-
 
     lat = zeros(3, 3)
     norbits = 0
