@@ -361,21 +361,24 @@ function _get_transformed_site(
     s::Symmetry,
     lat::AbstractMatrix{Float64},
     site_positions::Matrix{Float64},
+    orbital_types::Vector{Vector{T}},
     R::AbstractVector{<:Integer},
     i::Integer;
     position_tolerance::Float64=1.0e-2
-)::Tuple{Vector{Int64},Int64}
+)::Tuple{Vector{Int64},Int64} where T <: Integer
     pos = lat * R + site_positions[:, i]
     npos = s.rotation_matrix * pos + s.translation
     nsites = size(site_positions, 2)
     ni = 0
     nR = [0, 0, 0]
     for cnt in 1:nsites
-        tmp = inv(lat) * (npos - site_positions[:, cnt])
-        nR = round.(tmp)
-        if norm(lat * (tmp - nR)) < position_tolerance
-            ni = cnt
-            break
+        if orbital_types[cnt] == orbital_types[i]
+            tmp = inv(lat) * (npos - site_positions[:, cnt])
+            nR = round.(tmp)
+            if norm(lat * (tmp - nR)) < position_tolerance
+                ni = cnt
+                break
+            end
         end
     end
     if ni == 0
@@ -391,7 +394,7 @@ function _get_transformed_site(
     i::Integer;
     position_tolerance::Float64=1.0e-2
 )::Tuple{Vector{Int64},Int64}
-    return _get_transformed_site(s, tm.lat, tm.site_positions, R, i, position_tolerance=position_tolerance)
+    return _get_transformed_site(s, tm.lat, tm.site_positions, tm.orbital_types, R, i, position_tolerance=position_tolerance)
 end
 
 function transform_hamiltonian!(
