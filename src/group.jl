@@ -365,15 +365,15 @@ function _get_transformed_site(
     i::Integer;
     position_tolerance::Float64=1.0e-2
 )::Tuple{Vector{Int64},Int64}
-    pos = lat*R+site_positions[:, i]
-    npos = s.rotation_matrix*pos+s.translation
+    pos = lat * R + site_positions[:, i]
+    npos = s.rotation_matrix * pos + s.translation
     nsites = size(site_positions, 2)
     ni = 0
     nR = [0, 0, 0]
     for cnt in 1:nsites
-        tmp = inv(lat)*(npos-site_positions[:, cnt])
+        tmp = inv(lat) * (npos - site_positions[:, cnt])
         nR = round.(tmp)
-        if sum(abs.(tmp - nR)) < position_tolerance
+        if norm(lat * (tmp - nR)) < position_tolerance
             ni = cnt
             break
         end
