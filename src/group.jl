@@ -542,7 +542,7 @@ function get_bloch_rep(s::Symmetry, tm::TBModel, k::Vector{<:Real})
     rep = zeros(ComplexF64, tm.norbits, tm.norbits)
     kc = tm.rlat*k
     for i in 1:tm.nsites
-        R, j = _get_transformed_site(s, tm.lat, tm.site_positions, [0, 0, 0], i)
+        R, j = _get_transformed_site(s, tm.lat, tm.site_positions, tm.orbital_types, [0, 0, 0], i)
         rep[Hop._to_orbital_index(tm, j), Hop._to_orbital_index(tm, i)] =
             get_orb_rep(s, tm.orbital_types[i])*exp(-im*((get_k_rep(s)*kc)⋅(tm.lat*R)))
     end
