@@ -1,5 +1,3 @@
 # Hop.jl
 
-[![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://hop-developers.github.io/Hop.jl/dev/)
-
-Tight Binding package written in julia.
+Hop.jl has been renamed to HopTB.jl and moved to https://github.com/HopTB/HopTB.jl
